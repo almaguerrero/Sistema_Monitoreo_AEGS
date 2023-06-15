@@ -289,68 +289,136 @@ let ctr = 0;
 
 // Callback function that will retrieve our latest sensor readings and redraw our Gauge with the latest readings
 function updateSensorReadings(jsonResponse) {
-  //console.log(typeof jsonResponse);
-  //console.log(jsonResponse);
-
   let temperature = jsonResponse;
-  let humidity = jsonResponse;
-  let pressure = jsonResponse;
-  //let altitude = Number(jsonResponse.altitude).toFixed(2);
+  updateBoxes(temperature);
+  updateGauge(temperature);
+}
 
-  updateBoxes(temperature, humidity, pressure);
-
-  updateGauge(temperature, humidity, pressure);
-
-  // Update Temperature Line Chart
+// instanteneo  voltaje
+function chart_00(jsonResponse) {
+  let temperature = jsonResponse;
   updateCharts(
     temperatureHistoryDiv,
     newTempXArray,
     newTempYArray,
     temperature
   );
-  // Update Humidity Line Chart
+}
+
+
+////current
+// Callback function that will retrieve our latest sensor readings and redraw our Gauge with the latest readings
+function updateSensorReadings00(jsonResponse) {
+  let humidity = jsonResponse; 
+  updateBoxesCurrent(humidity);
+  updateGaugeCurrent(humidity);
+}
+
+function chart_01(jsonResponse) {
+  let humidity = jsonResponse; 
   updateCharts(
     humidityHistoryDiv,
     newHumidityXArray,
     newHumidityYArray,
     humidity
   );
-  // Update Pressure Line Chart
+}
+//
+//power
+// Callback function that will retrieve our latest sensor readings and redraw our Gauge with the latest readings
+function updateSensorReadings02(jsonResponse) {
+  let pressure = jsonResponse;
+  updateBoxesPower(pressure);
+  updateGaugePower(pressure);
+}
+
+function chart_02(jsonResponse) {
+  let pressure = jsonResponse;
   updateCharts(
     pressureHistoryDiv,
     newPressureXArray,
     newPressureYArray,
     pressure
   );
-
 }
 
-function updateBoxes(temperature, humidity, pressure) {
+
+//caja de voltaje
+function updateBoxes(temperature) {
   let temperatureDiv = document.getElementById("temperature"); //get value
-  let humidityDiv = document.getElementById("humidity");
-  let pressureDiv = document.getElementById("pressure");
+  //let humidityDiv = document.getElementById("humidity");
+  //let pressureDiv = document.getElementById("pressure");
   //let altitudeDiv = document.getElementById("altitude");
 
   temperatureDiv.innerHTML = temperature + " V";
+  //humidityDiv.innerHTML = humidity + " A";
+  //pressureDiv.innerHTML = pressure + " W";
+  //altitudeDiv.innerHTML = altitude + " m";
+}
+
+//caja de corriente
+function updateBoxesCurrent(humidity) {
+  //let temperatureDiv = document.getElementById("temperature"); //get value
+  let humidityDiv = document.getElementById("humidity");
+  //let pressureDiv = document.getElementById("pressure");
+  //let altitudeDiv = document.getElementById("altitude");
+
+  //temperatureDiv.innerHTML = temperature + " V";
   humidityDiv.innerHTML = humidity + " A";
+  //pressureDiv.innerHTML = pressure + " W";
+  //altitudeDiv.innerHTML = altitude + " m";
+}
+
+//caja de potencia
+function updateBoxesPower(pressure) {
+  //let temperatureDiv = document.getElementById("temperature"); //get value
+  //let humidityDiv = document.getElementById("humidity");
+  let pressureDiv = document.getElementById("pressure");
+  //let altitudeDiv = document.getElementById("altitude");
+
+  //temperatureDiv.innerHTML = temperature + " V";
+  //humidityDiv.innerHTML = humidity + " A";
   pressureDiv.innerHTML = pressure + " W";
   //altitudeDiv.innerHTML = altitude + " m";
 }
 
-function updateGauge(temperature, humidity, pressure) {
+function updateGauge(temperature) {
   var temperature_update = {
     value: temperature,
   };
+ // var humidity_update = {
+   // value: humidity,
+ // };
+  //var pressure_update = {
+    //value: pressure,
+  //};
+  Plotly.update(temperatureGaugeDiv, temperature_update);
+  //Plotly.update(humidityGaugeDiv, humidity_update);
+  //Plotly.update(pressureGaugeDiv, pressure_update);
+  //Plotly.update(altitudeGaugeDiv, altitude_update);
+}
+
+function updateGaugeCurrent(humidity) {
+  //var temperature_update = {
+    //value: temperature,
+  //};
   var humidity_update = {
     value: humidity,
   };
+  //var pressure_update = {
+    //value: pressure,
+  //};
+ // Plotly.update(temperatureGaugeDiv, temperature_update);
+  Plotly.update(humidityGaugeDiv, humidity_update);
+  //Plotly.update(pressureGaugeDiv, pressure_update);
+  //Plotly.update(altitudeGaugeDiv, altitude_update);
+}
+
+function updateGaugePower(pressure) {
   var pressure_update = {
     value: pressure,
   };
-  Plotly.update(temperatureGaugeDiv, temperature_update);
-  Plotly.update(humidityGaugeDiv, humidity_update);
   Plotly.update(pressureGaugeDiv, pressure_update);
-  //Plotly.update(altitudeGaugeDiv, altitude_update);
 }
 
 function updateCharts(lineChartDiv, xArray, yArray, sensorRead) {
@@ -453,11 +521,24 @@ function onMessage(topic, message) {
   var messageResponse = JSON.parse(stringResponse);
   //updateSensorReadings(messageResponse); //send number
   //console.log(topic)//IDENTIFICA EL TOPIC
-  if(topic == 'sensorReadings'){
-  updateSensorReadings(messageResponse); //send number 
+  if(topic == 'vol_dash'){
+     updateSensorReadings(messageResponse); //send number 
   }
-  else{
-    console.log(messageResponse) //100
+  else if (topic == 'current_dash') {
+     updateSensorReadings00(messageResponse);
+  }
+
+  else if(topic == 'power_dash'){
+     updateSensorReadings02(messageResponse);
+  }
+  else if (topic =='volt_int') {
+     chart_00(messageResponse);
+  }
+  else if(topic == 'cur_int'){
+     chart_01(messageResponse);
+  }
+  else if(topic == 'power_int'){
+     chart_02(messageResponse);
   }
 }
 
@@ -482,14 +563,16 @@ function fetchMQTTConnection() {
       return response.json();
     })
     .then(function (data) {
-      initializeMQTTConnection(data.mqttServer, data.mqttTopic,data.mqttTopic_1);
+      initializeMQTTConnection(data.mqttServer, data.mqttTopic,data.mqttTopic_1,data.mqttTopic_2,data.mqttTopic_3,data.mqttTopic_4,data.mqttTopic_5);
     })
     .catch((error) => console.error("Error getting MQTT Connection :", error));
 }
-function initializeMQTTConnection(mqttServer,mqttTopic,mqttTopic_1) {
+function initializeMQTTConnection(mqttServer,mqttTopic,mqttTopic_1,mqttTopic_2,mqttTopic_3,mqttTopic_4,mqttTopic_5) {
   //topícos we
   console.log(
-    `Initializing connection to :: ${mqttServer}, topic :: ${mqttTopic},other::${mqttTopic_1}`
+    `Initializing connection to :: ${mqttServer}, volt_0 :: ${mqttTopic},current_0::${mqttTopic_1}
+                                  ,power_0::${mqttTopic_2},volt_inst::${mqttTopic_3},curr_inst::${mqttTopic_4}
+                                  ,power_inst::${mqttTopic_5}`
   );
   var fnCallbacks = { onConnect, onMessage, onError, onClose };
 
@@ -498,4 +581,8 @@ function initializeMQTTConnection(mqttServer,mqttTopic,mqttTopic_1) {
 
   mqttService.subscribe(mqttTopic);
   mqttService.subscribe(mqttTopic_1);
+  mqttService.subscribe(mqttTopic_2);
+  mqttService.subscribe(mqttTopic_3);
+  mqttService.subscribe(mqttTopic_4);
+  mqttService.subscribe(mqttTopic_5);
 }

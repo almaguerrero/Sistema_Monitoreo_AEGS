@@ -20,6 +20,10 @@ app.get("/mqttConnDetails", (req, res) => {
       mqttServer: process.env.MQTT_BROKER,
       mqttTopic: process.env.MQTT_TOPIC,
       mqttTopic_1: process.env.MQTT_TOPIC_1,
+      mqttTopic_2: process.env.MQTT_TOPIC_2,
+      mqttTopic_3: process.env.MQTT_TOPIC_3,
+      mqttTopic_4: process.env.MQTT_TOPIC_4,
+      mqttTopic_5: process.env.MQTT_TOPIC_5,
     })
   );
 });
