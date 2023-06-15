@@ -19,6 +19,7 @@ app.get("/mqttConnDetails", (req, res) => {
     JSON.stringify({
       mqttServer: process.env.MQTT_BROKER,
       mqttTopic: process.env.MQTT_TOPIC,
+      mqttTopic_1: process.env.MQTT_TOPIC_1,
     })
   );
 });

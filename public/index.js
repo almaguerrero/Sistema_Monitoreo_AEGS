@@ -204,8 +204,8 @@ var temperatureData = [
     gauge: {
       axis: { range: [0, 400] },
       steps: [
-        { range: [0, 20], color: "lightgray" },
-        { range: [20, 30], color: "gray" },
+        { range: [0, 300], color: "lightgray" },
+        { range: [0, 300], color: "gray" },
       ],
       threshold: {
         line: { color: "red", width: 4 },
@@ -293,7 +293,6 @@ function updateSensorReadings(jsonResponse) {
   //console.log(jsonResponse);
 
   let temperature = jsonResponse;
-  //console.log((jsonResponse.temperature).toFixed(2));
   let humidity = jsonResponse;
   let pressure = jsonResponse;
   //let altitude = Number(jsonResponse.altitude).toFixed(2);
@@ -363,7 +362,7 @@ function updateCharts(lineChartDiv, xArray, yArray, sensorRead) {
   }
   var today = new Date();
   var now = today.toLocaleString();
-  console.log(now);
+  //console.log(now); date 
   xArray.push(ctr++);
   yArray.push(sensorRead);
 
@@ -450,8 +449,16 @@ function onConnect(message) {
 }
 function onMessage(topic, message) {
   var stringResponse = message.toString();
+  //console.log(stringResponse)
   var messageResponse = JSON.parse(stringResponse);
-  updateSensorReadings(messageResponse); //send number
+  //updateSensorReadings(messageResponse); //send number
+  //console.log(topic)//IDENTIFICA EL TOPIC
+  if(topic == 'sensorReadings'){
+  updateSensorReadings(messageResponse); //send number 
+  }
+  else{
+    console.log(messageResponse) //100
+  }
 }
 
 function onError(error) {
@@ -475,14 +482,14 @@ function fetchMQTTConnection() {
       return response.json();
     })
     .then(function (data) {
-      initializeMQTTConnection(data.mqttServer, data.mqttTopic);
+      initializeMQTTConnection(data.mqttServer, data.mqttTopic,data.mqttTopic_1);
     })
     .catch((error) => console.error("Error getting MQTT Connection :", error));
 }
-function initializeMQTTConnection(mqttServer, mqttTopic) {
+function initializeMQTTConnection(mqttServer,mqttTopic,mqttTopic_1) {
   //topícos we
   console.log(
-    `Initializing connection to :: ${mqttServer}, topic :: ${mqttTopic}`
+    `Initializing connection to :: ${mqttServer}, topic :: ${mqttTopic},other::${mqttTopic_1}`
   );
   var fnCallbacks = { onConnect, onMessage, onError, onClose };
 
@@ -490,4 +497,5 @@ function initializeMQTTConnection(mqttServer, mqttTopic) {
   mqttService.connect();
 
   mqttService.subscribe(mqttTopic);
+  mqttService.subscribe(mqttTopic_1);
 }

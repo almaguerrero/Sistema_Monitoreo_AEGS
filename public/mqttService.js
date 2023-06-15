@@ -41,10 +41,13 @@ export class MQTTService {
   // Publish MQTT Message
   publish(topic, message, options) {
     this.mqttClient.publish(topic, message);
+
   }
 
   // Subscribe to MQTT Message
   subscribe(topic, options) {
     this.mqttClient.subscribe(topic, options);
+    console.log(topic)
   }
+
 }
